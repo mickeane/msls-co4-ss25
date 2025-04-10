@@ -1,0 +1,45 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# MacOS stuff
+.DS_Store
+
+# Special data folders
+archive/
+_archive/
+
+# venv subfolder
+**/venv/
+**/venv*/
+**/.venv/
+**/.venv*/
+**/*-venv/
+
+# Jupyter
+.ipynb_checkpoints
+*/.ipynb_checkpoints/*
+
+# IPython
+profile_default/
+ipython_config.py
+
+# Microsoft Office
+*.tmp
+~$*.doc*
+# Word Auto Backup File
+Backup of *.doc*
+
+# Excel
+~$*.xls*
+*.xlk
+
+# PowerPoint
+~$*.ppt*
+
+# Subfolder with pdfs
+notebooks/pdfs/
+
+# Ignore output folders
+out*/
