@@ -1,0 +1,22 @@
+numpy
+scipy
+pandas<=2.1.4  # Avoid an annoying deprecation warning in 2.2.0
+statsmodels
+
+matplotlib
+seaborn
+
+opencv-python
+pillow
+scikit-image
+nibabel
+pydicom
+SimpleITK
+
+ipython
+ipykernel
+jupyter
+black[jupyter]
+pylint
+gitpython
+nbconvert
