@@ -1,0 +1,25 @@
+ct-brain-slices.jpg:
+    https://commons.wikimedia.org/wiki/File:Computed_tomography_of_human_brain_(10).png
+
+fibroblast-sample.jpg:
+    Own data / Steffi Lehmann / Besmira Sabani / ZHAW
+
+histology-image.jpg:
+kidney-cells.jpg.jpg:
+    Own data / Sven Hirsch / Leoni Grossmann / Norman Juchler / ZHAW
+
+neurons-cultured-mask.png:
+neurons-cultured.jpg:
+    www.cellimagelibrary.org/images/CCDB_6843
+
+
+veggies.jpg: 
+veggies-gray.jpg: 
+    https://stock.adobe.com/ch_de/images/vegetables-and-fruits-background/93014626
+
+flowers.jpg: 
+    https://stock.adobe.com/ch_de/images/cosmos-flowers-blooming-in-the-morning/135148666
+
+kingfisher.jpg:
+kingfisher-gray.jpg:
+    https://freerangestock.com/photos/129182/single-kingfisher-bird.html
