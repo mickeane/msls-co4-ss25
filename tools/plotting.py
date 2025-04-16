@@ -11,6 +11,9 @@ from .fileio import ensure_dir
 from .colors import (color_palette, colors2plotly)
 from pathlib import Path
 
+# Useful to display pretty looking elements in Jupyter notebooks
+from IPython.core.display import HTML
+
 
 # Default color palette of this package.
 PALETTE = color_palette("default", alpha=[0.8, 0.45, 0.15], 
@@ -28,6 +31,84 @@ PALETTE_CMAP = color_palette("default",
                              mix_color="white", as_cmap=True, n_cmap=3)
 PALETTE_PLOTLY = colors2plotly(PALETTE)
 # PALETTE_RGB = [PALETTE[1], PALETTE[2], PALETTE[0]]
+
+
+def show_header(title=None, 
+                subtitle=None, 
+                width=9,  # str or (float in inches)
+                
+                # Default title style
+                fontsize=24, 
+                color=None,
+                kwargs={},
+                
+                # Default subtitle style
+                subtitle_fontsize=16, 
+                subtitle_color=None,
+                subtitle_kwargs={},
+                ):
+    """Displays a header with a title and a subtitle."""
+        
+    if width is None:
+        width_str = "9in"
+    elif isinstance(width, str):
+        width_str = width
+    elif isinstance(width, (int, float)):
+        width_str = "%din" % width
+    else:
+        raise ValueError("Invalid type for width: %s" % type(width))
+    
+    title_style = dict()
+    title_style.update(kwargs)
+    title_style.setdefault("width", width_str)
+    title_style.setdefault("text-align", "center")
+    title_style.setdefault("font-size", "%dpx" % fontsize)
+    title_style.setdefault("font-weight", "bold")
+    title_style.setdefault("color", color or "#333333")
+    title_style.setdefault("border", "none")
+    title_style.setdefault("margin", "30px 0 0 0")
+    title_style.setdefault("vertical-align", "middle")
+    # title_style.setdefault("padding", "0px")
+    # title_style.setdefault("background-color", "transparent")
+    
+    subtitle_style = dict()
+    subtitle_style.update(subtitle_kwargs)
+    subtitle_style.setdefault("width", width_str)
+    subtitle_style.setdefault("text-align", "center")
+    subtitle_style.setdefault("font-size", "%dpx" % subtitle_fontsize)
+    #subtitle_style.setdefault("font-weight", "bold")
+    subtitle_style.setdefault("color", subtitle_color or "#999999")
+    subtitle_style.setdefault("border", "none")
+    subtitle_style.setdefault("margin", "0 0 0 0")
+    subtitle_style.setdefault("padding", "0px")
+    # subtitle_style.setdefault("background-color", "transparent")
+    
+    # Convert styles to string
+    def style2str(style):
+        return "; ".join(["%s:%s" % (key, value) for key, value in style.items() if value is not None])  
+    
+
+    if title is not None:
+        html = """
+                <input
+                type="text"
+                style="%s"
+                value="%s"
+                />
+            """
+        html = html % (style2str(title_style), title)
+        display(HTML(html));
+    
+    if subtitle is not None:
+        html = """
+                <input
+                type="text"
+                style="%s"
+                value="%s"
+                />
+            """
+        html = html % (style2str(subtitle_style), subtitle)
+        display(HTML(html));
 
 
 # Set default color palett
@@ -87,7 +168,8 @@ def show_image(image, title=None,
                frame_width=2,
                axes_frame=True,
                show_axes=False,
-               box_aspect=None
+               box_aspect=None,
+               save_kwargs={},
                ):
     """Displays an image using matplotlib capabilities.
 
@@ -108,6 +190,8 @@ def show_image(image, title=None,
                 provided percentiles of the intensity. Sets normalize to True.
         frame: If True, a frame is drawn around the image (if the image
                is smaller than the canvas).
+        save_kwargs: If not None, a dictionary of keyword arguments passed
+                to save_figure() to save the figure.
     """
     height, width = image.shape[:2]
     
@@ -174,7 +258,7 @@ def show_image(image, title=None,
 
     h, w = image.shape[:2]
     # Draw frame if:
-    if frame: 
+    if frame:
         rect = patches.Rectangle((0, 0), w, h, 
                                 linewidth=frame_width, 
                                 edgecolor=frame_color, 
@@ -182,7 +266,9 @@ def show_image(image, title=None,
 
         # Add the rectangle patch to the plot
         ax.add_patch(rect)  
-
+        
+    if save_kwargs:
+        save_figure(fig=fig, **save_kwargs)
         
 
 def show_image_pair(image1, image2, 
@@ -193,6 +279,7 @@ def show_image_pair(image1, image2,
                     shape="largest",
                     box_aspect=None,
                     frame=True,
+                    save_kwargs={},
                     **kwargs):
     """Displays a pair of images side-by-side.
 
@@ -201,9 +288,14 @@ def show_image_pair(image1, image2,
         image2: The second image.
         title1: The title of the first image.
         title2: The title of the second image.
+        normalize: If True, grayscale images are normalized.
+        dpi:    The DPI of the figure.
         frame:  If True, a frame is drawn around the images 
                 (if the images are smaller than the canvas).
                 Set "forced" to force a frame.
+        save_kwargs: If not None, a dictionary of keyword arguments passed
+                to save_figure() to save the figure.
+        kwargs:  Additional keyword arguments passed to show_image().
     """
     # This converts PIL images to numpy arrays.
     image1 = np.asarray(image1)
@@ -239,13 +331,18 @@ def show_image_pair(image1, image2,
                frame=draw_frame2,
                **kwargs) 
     fig.tight_layout()
+    
+    if save_kwargs:
+        save_figure(fig=fig, **save_kwargs)
+    
+    plt.show()
 
 
 def show_image_chain(images, **kwargs):
     """Displays a list of images. Equivalent to show_image_grid(..., ncols=-1).
     """
     kwargs.setdefault("ncols", -1)
-    return show_image_grid(images, **kwargs) 
+    show_image_grid(images, **kwargs)
 
 
 def show_image_grid(images, titles=None, 
@@ -258,6 +355,9 @@ def show_image_grid(images, titles=None,
                     normalize=True,
                     box_aspect=None,
                     frame=True,
+                    header=None,
+                    header_kwargs={},
+                    save_kwargs={},
                     **kwargs):
     """Displays a grid of images. The width of the grid is determined by ncols.
 
@@ -290,6 +390,10 @@ def show_image_grid(images, titles=None,
                 Useful for images with different aspect ratios.
         frame:  If True, a frame is drawn around the images (if the images
                 are smaller than the canvas). Set "forced" to force a frame.
+        header: If not None, a header is displayed above the images.
+        header_kwargs: Additional keyword arguments passed to show_header().
+        save_kwargs: If not None, a dictionary of keyword arguments passed
+                to save_figure() to save the figure.
         kwargs:  Additional keyword arguments passed to show_image().
         
     Usage:
@@ -341,6 +445,12 @@ def show_image_grid(images, titles=None,
     # this is a good size for printing
     if figsize[0]>9:
         figsize = (9, figsize[1] * 9 / figsize[0])
+        
+    if header:
+        show_header(title=header,
+                    width=figsize[0],
+                    fontsize=24,
+                    kwargs=header_kwargs)
 
     # Create the figure
     fig, axes = plt.subplots(nrows, ncols, 
@@ -365,7 +475,11 @@ def show_image_grid(images, titles=None,
     for i in range(len(images), len(axes.flat)):
         axes.flat[i].axis("off")
     fig.tight_layout()
-    return fig
+    
+    if save_kwargs:
+        save_figure(fig=fig, **save_kwargs)
+    
+    plt.show()
 
 
 def save_figure(fig=None, path="figure.pdf", **kwargs):
